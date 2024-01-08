@@ -18,6 +18,7 @@ namespace Blackjack
         static bool  havingfileinput = false;
         static string[] fileinputs=new string[1000];
         private static int lineno = 0;
+        private static int totallines = -1;
 
 
         private enum RoundResult
@@ -96,13 +97,17 @@ namespace Blackjack
             while (true)
             {
                 bool wronginput = false;
-                string action = "";
+                string action = null;
                 if( !havingfileinput )
                 Console.WriteLine("Enter action ..");
                 
-                while ( action.ToUpper() != "HIT" && action.ToUpper() != "STAND")
+                while ( action == null || ( action.ToUpper() != "HIT" && action.ToUpper() != "STAND"))
                 {
                         if(havingfileinput){
+                            if(lineno >= totallines){
+                                Console.WriteLine(" total number of lines exceeded ");
+                                Environment.Exit(0);
+                            }
                             action = fileinputs[lineno++];
                         }
                         else action = Console.ReadLine();
@@ -197,6 +202,7 @@ namespace Blackjack
                         do
                         {
                             fileinputs[now++] = reader.ReadLine();
+                            totallines = now;
                         }
                         while(reader.Peek()!= -1);
                         ok = true;
@@ -207,6 +213,7 @@ namespace Blackjack
                     }
                     finally
                     {
+                        Console.WriteLine(totallines);
                         reader.Close();
                     }
                     if(ok)break;
