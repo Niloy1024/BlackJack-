@@ -15,7 +15,9 @@ namespace Blackjack
     {
         private static Deck deck = new Deck();
         private static Player player = new Player();
-        static int isrobotplaying = 0;
+        static bool  havingfileinput = false;
+        static string[] fileinputs=new string[1000];
+        private static int lineno = 0;
 
 
         private enum RoundResult
@@ -41,22 +43,17 @@ namespace Blackjack
 
 
         static void StartRound()
-        { 
-            Console.WriteLine();
-            Console.WriteLine();
+        {
+            if(!havingfileinput ){
+                Console.WriteLine("Press any key to play.");
+                Console.ReadKey();
+                Console.WriteLine("  STARTING NEW GAME .............");
+                Console.WriteLine();
+            }
+            
             Console.ForegroundColor = ConsoleColor.Cyan;
             
-            Console.WriteLine("  STARTING NEW GAME .............");
-            string response;
-            do
-            {
-                Console.WriteLine("  Do you want robot to play ???? .............");
-                response = Console.ReadLine();
-                if (response.ToUpper() == "YES")
-                {
-                    isrobotplaying = 1;
-                }
-            } while (response.ToUpper() != "YES" &&  response.ToUpper() != "NO");
+            
 
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -100,11 +97,15 @@ namespace Blackjack
             {
                 bool wronginput = false;
                 string action = "";
+                if( !havingfileinput )
                 Console.WriteLine("Enter action ..");
                 
                 while ( action.ToUpper() != "HIT" && action.ToUpper() != "STAND")
                 {
-                        action = Console.ReadLine();
+                        if(havingfileinput){
+                            action = fileinputs[lineno++];
+                        }
+                        else action = Console.ReadLine();
                         if (wronginput)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
@@ -112,9 +113,6 @@ namespace Blackjack
                             Console.ForegroundColor = ConsoleColor.White;
                         }
                         wronginput = true;
-                        
-                    
-
                 } 
 
                 if (action.ToUpper() == "STAND") break;
@@ -150,11 +148,9 @@ namespace Blackjack
             Console.WriteLine("Do you want to play again??");
             Console.ForegroundColor= ConsoleColor.White;
             string response;
-            if (isrobotplaying == 1)
+            if (havingfileinput )
             {
-
-                StreamReader reader = new StreamReader("C:\\Users\\sayef\\Downloads\\text.txt");
-                response = reader.ReadLine();
+                response = fileinputs[lineno++];
             } else response = Console.ReadLine();
             
             if(response.ToUpper() == "YES")
@@ -175,9 +171,47 @@ namespace Blackjack
 
             Console.Title = "♠♥♣♦ Blackjack";
 
-            Console.WriteLine("Press any key to play.");
-            Console.ReadKey();
-            Console.WriteLine("  STARTING NEW GAME .............");
+            
+            string response;
+            do
+            {
+                Console.WriteLine("  Do you want to have file inputs ???? .............");
+                response = Console.ReadLine();
+                if (response.ToUpper() == "YES")
+                {
+                    havingfileinput = true;
+                    
+                }
+            } while (response.ToUpper() != "YES" &&  response.ToUpper() != "NO");
+            if(havingfileinput)
+            {
+                while(true)
+                {
+                    bool ok = false;
+                    string filename = "C:\\New folder\\File.txt";
+                    StreamReader reader=new StreamReader(filename);
+                    try
+                    {
+                        int now = 0;
+                        
+                        do
+                        {
+                            fileinputs[now++] = reader.ReadLine();
+                        }
+                        while(reader.Peek()!= -1);
+                        ok = true;
+                    }
+                    catch
+                    {
+                        Console.WriteLine("File is empty or no file exixts");
+                    }
+                    finally
+                    {
+                        reader.Close();
+                    }
+                    if(ok)break;
+                }
+            }
             
             StartRound();
         }
